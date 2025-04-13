@@ -1,11 +1,14 @@
-import React from "react";
+import React, { StrictMode } from "react";
+import App from "./app";
 import ReactDOM from "react-dom";
-import App from "./app.jsx";
-import "./Styles/CSS/app.css";
+import "../css/app.css";
+
+// Recupera los cócteles inyectados en la variable global
+const initialCocktails = window.initialCocktails || [];
 
 ReactDOM.render(
     <StrictMode>
-        <App />
+        <App cocktails={initialCocktails}/>
     </StrictMode>,
-    document.getElementById("root")
+    document.getElementById("react-root")
 );

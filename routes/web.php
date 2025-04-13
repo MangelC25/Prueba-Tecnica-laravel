@@ -1,11 +1,19 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CocktailController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
 Auth::routes();
+Route::get('/', [CocktailController::class, 'index'])->name('home');
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::middleware('auth')->group(function () {
+    // Ruta para almacenar un cóctel (desde el frontend)
+    Route::post('/cocktails', [CocktailController::class, 'store']);
+    Route::get('/cocktails/manage', [CocktailController::class, 'manage'])
+        ->name('cocktails.manage');
+});
+
+
+
+

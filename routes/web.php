@@ -5,6 +5,7 @@ use App\Http\Controllers\CocktailController;
 
 Auth::routes();
 Route::get('/', [CocktailController::class, 'index'])->name('cocktails.index');
+Route::get('/home', [CocktailController::class, 'index'])->name('cocktails.index');
 
 Route::middleware('auth')->group(function () {
     // Ruta para almacenar un cóctel (desde el frontend)

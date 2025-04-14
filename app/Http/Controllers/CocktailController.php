@@ -6,31 +6,47 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Cocktail;
 
-const COCKTAIL_API_URL = 'https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita';
+const COCKTAIL_API_URL = 'https://www.thecocktaildb.com/api/json/v1/1/random.php';
 // Controlador para manejar las peticiones relacionadas a los cócteles
 
 
 class CocktailController extends Controller
 {
-    // Método para obtener los cócteles (consumiendo la API en el backend)
-    public function index(Request $request)
-    {
-        // Realiza la petición a la API de TheCocktailDB
-        
-        $response = Http::get(COCKTAIL_API_URL);
-        
-        // Verifica si la respuesta es exitosa y extrae la data
-        if ($response->successful()) {
-            $cocktails = $response->json()['drinks'] ?? [];
-            // Retorna la vista 'cocktails.index' inyectando la variable $cocktails
-            return view('cocktails.index', compact('cocktails'));
-        } else {
-            // En caso de error, se le puede pasar un array vacío y un mensaje de error opcional
-            $cocktails = [];
-            return view('cocktails.index', compact('cocktails'))
-                ->with('error', 'Error al consumir la API de TheCocktailDB');
-        }
-    }
+     // Método para obtener al menos 6 cócteles únicos
+     public function index(Request $request)
+     {
+         // Realizamos 6 peticiones de forma concurrente
+         $responses = Http::pool(function ($pool) {
+             return [
+                 $pool->get(COCKTAIL_API_URL),
+                 $pool->get(COCKTAIL_API_URL),
+                 $pool->get(COCKTAIL_API_URL),
+                 $pool->get(COCKTAIL_API_URL),
+                 $pool->get(COCKTAIL_API_URL),
+                 $pool->get(COCKTAIL_API_URL),
+             ];
+         });
+ 
+         // Extraemos el primer cóctel de cada respuesta
+         $cocktails = collect($responses)
+             ->map(function($response) {
+                 return $response->json()['drinks'][0] ?? null;
+             })
+             ->filter() // Elimina nulos
+             ->unique('idDrink') // Filtra duplicados basándose en el campo 'idDrink'
+             ->values();
+ 
+         // Si obtenemos menos de 6 cócteles únicos, seguimos pidiendo hasta alcanzar los 6
+         while ($cocktails->count() < 6) {
+             $response = Http::get(COCKTAIL_API_URL);
+             $drink = $response->json()['drinks'][0] ?? null;
+             if ($drink && !$cocktails->contains('idDrink', $drink['idDrink'])) {
+                 $cocktails->push($drink);
+             }
+         }
+ 
+         return view('cocktails.index', compact('cocktails'));
+     }
     
     // Método para almacenar un cóctel (si se usa para guardar desde el frontend)
     public function store(Request $request)
@@ -57,5 +73,16 @@ class CocktailController extends Controller
         {
             $cocktails = Cocktail::all();
             return view('cocktails.manage', compact('cocktails'));
+        }
+
+
+        public function categories()
+        {
+            // Realiza la petición a la API para obtener la lista de categorías
+            $response = Http::get('https://www.thecocktaildb.com/api/json/v1/1/list.php?c=list');
+    
+            // Extrae la información, la API devuelve un array en 'drinks'
+            $categories = $response->json()['drinks'] ?? [];
+    
         }
 }

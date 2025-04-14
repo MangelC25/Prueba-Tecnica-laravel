@@ -24,11 +24,15 @@
         "vite": "^6.2.4"
     },
     "dependencies": {
+        "@headlessui/react": "^2.2.1",
+        "@heroicons/react": "^2.2.0",
+        "clsx": "^2.1.1",
         "datatables.net": "^2.2.2",
         "jquery": "^3.7.1",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
         "sweetalert2": "^11.17.2",
-        "tailwind-config": "^0.1.2"
+        "tailwind-config": "^0.1.2",
+        "tailwind-scrollbar": "^4.0.2"
     }
 }

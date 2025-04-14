@@ -9,16 +9,33 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import "datatables.net";
 
-const App = ({ cocktails = [] }) => {
-    const handleVerMas = (cocktail) => {
-        console.log("Ver más sobre:", cocktail);
-    };
-
-    // Estado para almacenar la lista de categorías
+const App = ({ cocktails: initialCocktails = [] }) => {
+    // Estado local de cócteles: se inicializa con la data inyectada desde Blade.
+    const [cocktails, setCocktails] = useState(initialCocktails);
+    // Estado del input de búsqueda.
+    const [searchQuery, setSearchQuery] = useState("");
+    // Estado para almacenar la lista de categorías y la categoría seleccionada.
     const [categories, setCategories] = useState([]);
-    const [selectedCategory, setselectedCategory] = useState("All Categories");
+    const [selectedCategory, setSelectedCategory] = useState("All Categories");
 
-    // Función para obtener las categorías desde la API
+    // Estado para la paginación.
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6;
+
+    // Calcula el total de páginas.
+    const totalPages = Math.ceil(cocktails.length / itemsPerPage);
+    // Determina los cócteles a mostrar en la página actual.
+    const displayedCocktails = cocktails.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    // Reinicia la paginación a 1 cuando el listado de cócteles cambia.
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [cocktails]);
+
+    // Función para obtener las categorías desde la API.
     useEffect(() => {
         async function fetchCategories() {
             try {
@@ -27,9 +44,9 @@ const App = ({ cocktails = [] }) => {
                 );
                 const data = await response.json();
                 if (data && data.drinks) {
-                    // Extraemos el valor de 'strCategory' de cada objeto y actualizamos el estado
                     const cats = data.drinks.map((item) => item.strCategory);
-                    setCategories(cats);
+                    // Incluimos "All Categories" para poder restaurar el listado inicial.
+                    setCategories([...cats]);
                 }
             } catch (error) {
                 console.error("Error al obtener las categorías:", error);
@@ -38,15 +55,88 @@ const App = ({ cocktails = [] }) => {
         fetchCategories();
     }, []);
 
-    const handleSearch = () => {
-        // Lógica de búsqueda
-        console.log("Buscando cócteles...");
+    // Efecto para filtrar por categoría.
+    useEffect(() => {
+        async function fetchByCategory() {
+            if (selectedCategory === "All Categories") {
+                // Si se selecciona "All Categories", restauramos los resultados iniciales.
+                setCocktails(initialCocktails);
+            } else {
+                try {
+                    // Se obtiene la lista de cócteles básicos de la categoría.
+                    const response = await fetch(
+                        `https://www.thecocktaildb.com/api/json/v1/1/filter.php?c=${encodeURIComponent(
+                            selectedCategory
+                        )}`
+                    );
+                    const data = await response.json();
+                    if (data && data.drinks) {
+                        // Para cada cóctel, se obtiene su información completa.
+                        const detailedCocktails = await Promise.all(
+                            data.drinks.map(async (drink) => {
+                                try {
+                                    const detailResponse = await fetch(
+                                        `https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${drink.idDrink}`
+                                    );
+                                    const detailData =
+                                        await detailResponse.json();
+                                    return detailData.drinks
+                                        ? detailData.drinks[0]
+                                        : drink;
+                                } catch (error) {
+                                    console.error(
+                                        "Error obteniendo detalles de:",
+                                        drink,
+                                        error
+                                    );
+                                    return drink;
+                                }
+                            })
+                        );
+                        setCocktails(detailedCocktails);
+                    } else {
+                        setCocktails([]);
+                    }
+                } catch (error) {
+                    console.error("Error al buscar por categoría:", error);
+                }
+            }
+        }
+        fetchByCategory();
+    }, [selectedCategory, initialCocktails]);
+
+    // Función para buscar por nombre.
+    const handleSearch = async () => {
+        if (searchQuery.trim() === "") {
+            setCocktails(initialCocktails);
+            return;
+        }
+        try {
+            const response = await fetch(
+                `https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${encodeURIComponent(
+                    searchQuery
+                )}`
+            );
+            const data = await response.json();
+            if (data && data.drinks) {
+                setCocktails(data.drinks);
+            } else {
+                setCocktails([]);
+            }
+        } catch (error) {
+            console.error("Error al buscar cócteles:", error);
+        }
+    };
+
+    // Actualiza el estado del input mientras se escribe.
+    const handleInputChange = (event) => {
+        setSearchQuery(event.target.value);
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white">
             <section className="py-16 px-6 text-center flex flex-col justify-center items-center">
-                <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-transparent  bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600 mb-6">
+                <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600 mb-6">
                     Explore the Future of Cocktails
                 </h2>
                 <p className="text-gray-400 max-w-3xl mx-auto mb-10 text-lg sm:text-xl">
@@ -58,6 +148,8 @@ const App = ({ cocktails = [] }) => {
                         type="text"
                         placeholder="Search cocktails by name..."
                         className="bg-gray-800 text-gray-300 flex-1 px-5 py-3 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300"
+                        value={searchQuery}
+                        onChange={handleInputChange}
                     />
                     <button
                         onClick={handleSearch}
@@ -68,7 +160,7 @@ const App = ({ cocktails = [] }) => {
                     <div className="relative">
                         <Listbox
                             value={selectedCategory}
-                            onChange={setselectedCategory}
+                            onChange={setSelectedCategory}
                         >
                             <ListboxButton
                                 className={clsx(
@@ -92,10 +184,10 @@ const App = ({ cocktails = [] }) => {
                                 )}
                             >
                                 <ListboxOption
-                                    value={selectedCategory}
+                                    value="All Categories"
                                     className="group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10 text-white"
                                 >
-                                    {selectedCategory}
+                                    All Categories
                                 </ListboxOption>
                                 {categories.map((cat, idx) => (
                                     <ListboxOption
@@ -112,13 +204,13 @@ const App = ({ cocktails = [] }) => {
                 </div>
             </section>
 
+            {/* Sección de resultados (Tarjetas de Cócteles) */}
             <div className="max-w-7xl mx-auto p-8">
                 <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600 mb-12 text-center">
                     🍹 Cocktail Collection
                 </h1>
-
                 <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                    {cocktails.map((c, index) => (
+                    {displayedCocktails.map((c, index) => (
                         <div
                             key={index}
                             className="bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-500"
@@ -157,7 +249,41 @@ const App = ({ cocktails = [] }) => {
                         </div>
                     ))}
                 </div>
+
+                {/* Paginación */}
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center space-x-4 mt-8">
+                        <button
+                            onClick={() =>
+                                setCurrentPage((prev) => Math.max(prev - 1, 1))
+                            }
+                            disabled={currentPage === 1}
+                            className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 transition"
+                        >
+                            Prev
+                        </button>
+                        <span className="text-white">
+                            Página {currentPage} de {totalPages}
+                        </span>
+                        <button
+                            onClick={() =>
+                                setCurrentPage((prev) =>
+                                    Math.min(prev + 1, totalPages)
+                                )
+                            }
+                            disabled={currentPage === totalPages}
+                            className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 transition"
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
             </div>
+            <footer className="bg-gray-900 text-center py-6">
+                <p className="text-gray-400">
+                    &copy; 2023 Cocktail Collection. All rights reserved.
+                </p>
+            </footer>
         </div>
     );
 };

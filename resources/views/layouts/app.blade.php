@@ -19,10 +19,10 @@
     @vite(['resources/css/app.css', 'resources/js/main.jsx'])
 </head>
 
-<body class="antialiased bg-gray-100">
+<body class="antialiased min-h-screen bg-no-repeat bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white">
     <div id="app">
         <!-- Navegación -->
-        <nav class="bg-gradient-to-r from-black to-sky-500 shadow-lg relative ">
+        <nav class="bg-gradient-to-r from-black to-sky-500 shadow-lg shadow-sky-400 relative ">
             <div class="container mx-auto px-4 py-4 flex items-center justify-between h-20">
             <a href="{{ url('/') }}" class="text-2xl font-extrabold text-white tracking-wide">
                 {{ config('app.name', 'Laravel') }}
@@ -116,6 +116,11 @@
         <main>
             @yield('content')
         </main>
+        <footer class="bg-gray-900 text-center py-6">
+            <p class="text-gray-400">
+                &copy; 2023 Cocktail Collection. All rights reserved.
+            </p>
+        </footer>
     </div>
 
     <!-- Scripts para interactividad -->

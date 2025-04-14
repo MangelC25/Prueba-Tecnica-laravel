@@ -1,44 +1,16 @@
-import React, { useEffect } from "react";
-import $ from "jquery";
+import React from "react";
 import "datatables.net";
 
-const App = ({ cocktails = [] }) => {
-    useEffect(() => {
-        $("#cocktail-table").DataTable();
-    }, [cocktails]);
+const App = () => {
 
     return (
-        <div className="container">
-            <h1>Cocktails</h1>
-
-            <table
-                id="cocktail-table"
-                className="table table-striped table-bordered"
-            >
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Categoría</th>
-                        <th>Vasos</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {cocktails.map((c, index) => (
-                        <tr key={index}>
-                            <td>{c.strDrink}</td>
-                            <td>{c.strCategory}</td>
-                            <td>{c.strGlass}</td>
-                            <td>
-                                <button onClick={() => handleGuardar(c)}>
-                                    Guardar
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+        <>
+            <div className="max-w-7xl mx-auto px-4 py-6 relative overflow-auto">
+                <h1 className="text-4xl font-extrabold text-gray-800 mb-8 text-center">
+                    🍹 Lista de Cócteles
+                </h1>
+            </div>
+        </>
     );
 };
 

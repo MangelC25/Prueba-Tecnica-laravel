@@ -1,7 +1,7 @@
 import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App"; 
-import TableCocktails from "./components/tablecocktails"; 
+import App from "./app";
+import TableCocktails from "./components/tablecocktails";
 
 // Recupera los cócteles inyectados en la variable global
 const initialCocktails = window.initialCocktails || [];

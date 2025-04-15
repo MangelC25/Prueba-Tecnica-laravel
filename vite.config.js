@@ -24,4 +24,7 @@
                 ],
             },
         },
+        build: {
+            outDir: 'dist', // Configura aquí la carpeta de salida
+        },
     });

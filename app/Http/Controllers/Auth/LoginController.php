@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
@@ -37,4 +38,17 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
     }
+
+    protected function authenticated(Request $request, $user)
+    {
+        // Log the authenticated user
+        \Log::info('User authenticated:', ['id' => $user->id, 'email' => $user->email]);
+
+        // Flash a session message to display in the frontend
+        session()->flash('auth_message', 'User authenticated successfully');
+
+        // Redirect back to the intended page
+        return redirect()->intended($this->redirectPath());
+    }
 }
+

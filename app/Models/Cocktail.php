@@ -12,9 +12,11 @@ class Cocktail extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'category',
-        'image',
-        'instructions',
+        'idDrink',
+        'strDrink',
+        'strCategory',
+        'strGlass',
+        'strInstructions',
+        'strDrinkThumb',
     ];
 }

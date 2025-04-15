@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-180 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-black to-gray-800 text-gray-100">
+<div class="min-h-screen pt-15 pb-30 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-black to-gray-800 text-gray-100">
     <div class="w-full max-w-md bg-gradient-to-br from-purple-600 via-blue-500 to-indigo-600 shadow-2xl shadow-sky-400 rounded-2xl overflow-hidden transform hover:scale-102 transition-transform duration-300">
         <div class="text-white px-6 py-4 text-center">
             <h2 class="text-2xl font-bold tracking-wide">{{ __('Register') }}</h2>
@@ -12,7 +12,7 @@
                 @csrf
                 <div class="mb-6">
                     <label for="name" class="block text-gray-700 text-sm font-medium mb-2">{{ __('Name') }}</label>
-                    <input id="name" type="text" class="w-full border border-gray-300 px-4 py-3 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:outline-none @error('name') border-red-500 @enderror" name="name" value="{{ old('name') }}" required autocomplete="name" autofocus>
+                    <input id="name" type="text" class="w-full border px-4 py-3 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:outline-none @error('name') border-red-500 @enderror" name="name" value="{{ old('name') }}" required autocomplete="name" autofocus>
                     @error('name')
                         <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                     @enderror
@@ -20,7 +20,7 @@
 
                 <div class="mb-6">
                     <label for="email" class="block text-gray-700 text-sm font-medium mb-2">{{ __('Email Address') }}</label>
-                    <input id="email" type="email" class="w-full border border-gray-300 px-4 py-3 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:outline-none @error('email') border-red-500 @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
+                    <input id="email" type="email" class="w-full border border-gray-300 px-4 py-3 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:outline-none @error('email') @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
                     @error('email')
                         <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                     @enderror
@@ -28,7 +28,7 @@
 
                 <div class="mb-6">
                     <label for="password" class="block text-gray-700 text-sm font-medium mb-2">{{ __('Password') }}</label>
-                    <input id="password" type="password" class="w-full border border-gray-300 px-4 py-3 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:outline-none @error('password') border-red-500 @enderror" name="password" required autocomplete="new-password">
+                    <input id="password" type="password" class="w-full border px-4 py-3 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:outline-none @error('password') border-red-500 @enderror" name="password" required autocomplete="new-password">
                     @error('password')
                         <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                     @enderror

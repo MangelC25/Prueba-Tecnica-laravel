@@ -30,6 +30,7 @@ const App = ({ cocktails: initialCocktails = [] }) => {
         currentPage * itemsPerPage
     );
 
+
     // Reinicia la paginación a 1 cuando el listado de cócteles cambia.
     useEffect(() => {
         setCurrentPage(1);
@@ -205,7 +206,7 @@ const App = ({ cocktails: initialCocktails = [] }) => {
             </section>
 
             {/* Sección de resultados (Tarjetas de Cócteles) */}
-            <div className="max-w-7xl mx-auto p-8">
+            <div className="max-w-7xl mx-auto p-8 pb-25">
                 <h1 className="text-4xl md:text-5xl  font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600 mb-12 text-center">
                     🍹 Cocktail Collection
                 </h1>

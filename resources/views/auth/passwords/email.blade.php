@@ -19,7 +19,7 @@
             <div>
                 <label for="email" class="block text-sm font-medium text-gray-300">{{ __('Email Address') }}</label>
                 <input id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus
-                    class="mt-1 block w-full px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none @error('email') border-red-500 @enderror">
+                    class="mt-1 block w-full px-4 py-2 bg-gray-700 text-white rounded-lg border focus:ring-2 focus:ring-blue-500 focus:outline-none @error('email') border-red-500 @enderror">
                 @error('email')
                     <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                 @enderror

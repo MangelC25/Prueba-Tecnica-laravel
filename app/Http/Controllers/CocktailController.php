@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Cocktail;
+use Illuminate\Support\Facades\Auth;
 
 const COCKTAIL_API_URL = 'https://www.thecocktaildb.com/api/json/v1/1/random.php';
 // Controlador para manejar las peticiones relacionadas a los cócteles
@@ -51,21 +52,28 @@ class CocktailController extends Controller
     // Método para almacenar un cóctel (si se usa para guardar desde el frontend)
     public function store(Request $request)
     {
-        // Valida los datos recibidos
-        $data = $request->validate([
-            'name' => 'required|string',
-            'category' => 'nullable|string',
-            'instructions' => 'nullable|string',
-            'image' => 'nullable|string',
-        ]);
 
-        // Crea y guarda el registro en la base de datos
-        $cocktail = Cocktail::create($data);
-
-        return response()->json([
-            'message' => 'Cóctel guardado con éxito',
-            'cocktail' => $cocktail,
-        ], 201);
+        if (Auth::check()) {
+            // Valida y guarda el cóctel
+            $data = $request->validate([
+                'idDrink'         => 'required',
+                'strDrink'        => 'required',
+                'strCategory'     => 'nullable',
+                'strGlass'        => 'nullable',
+                'strInstructions' => 'nullable',
+                'strDrinkThumb'   => 'nullable',
+            ]);
+    
+            $cocktail = Cocktail::updateOrCreate(
+                ['idDrink' => $data['idDrink']],
+                $data
+            );
+    
+            return response()->json($cocktail, 201);
+        } else {
+            // Devuelve error en JSON si no está autenticado
+            return response()->json(['error' => 'No estás autenticado'], 403);
+        }
     }
 
         // Muestra la lista de cócteles guardados
